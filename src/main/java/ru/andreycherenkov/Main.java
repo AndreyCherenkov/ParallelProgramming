@@ -6,38 +6,52 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.LongSummaryStatistics;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Main {
 
     private static final String SOURCE_PATH = "src/main/resources/";
     private static final String RESULTS_PATH = "src/main/resources/results/";
-    private static final List<Long> TIMES_LIST = new ArrayList<>();
+    private static final Collection<Long> TIMES_LIST = new ArrayList<>();
+
+//    private ExecutorService executor;
 
     public static void main(String[] args) {
         long before = System.currentTimeMillis();
 
         try {
-            BufferedImage image = ImageIO.read(new File(SOURCE_PATH + "input.jpg"));
+            BufferedImage image = ImageIO.read(new File(SOURCE_PATH + "4k_forest.jpg"));
 
             int threshold = 150;
-            int erosionStep = 2;
+            int erosionStep = 1;
 
             // Преобразование изображения в черно-белое по порогу
             int width = image.getWidth();
             int height = image.getHeight();
             int[][] binaryImage = new int[height][width];
 
-            for (int y = 0; y < height; y++) {
-                for (int x = 0; x < width; x++) {
-                    Color color = new Color(image.getRGB(x, y));
-                    int intensity = (color.getRed() + color.getGreen() + color.getBlue()) / 3;
-                    binaryImage[y][x] = intensity < threshold ? 0 : 1;
+            try (ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())) {
+
+                //black-white
+                for (int y = 0; y < height; y++) {
+                    final int row = y;
+                    executor.submit(() -> {
+                        System.out.println("Thread: " + Thread.currentThread().getName());
+                        for (int x = 0; x < width; x++) {
+                            Color color = new Color(image.getRGB(x, row));
+                            int intensity = (color.getRed() + color.getGreen() + color.getBlue()) / 3;
+                            binaryImage[row][x] = intensity < threshold ? 0 : 1;
+                        }
+                    });
                 }
+
+                executor.shutdown();
             }
 
-            // Выполнение эрозии
             int[][] erodedImage = erode(binaryImage, erosionStep);
 
             // Создание выходного изображения
@@ -48,11 +62,11 @@ public class Main {
                 }
             }
 
-            // Сохранение результата в файл
             ImageIO.write(outputImage, "png", new File(RESULTS_PATH + "output.png"));
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         long after = System.currentTimeMillis();
         long time = after - before;
         TIMES_LIST.add(time);
@@ -65,20 +79,26 @@ public class Main {
         int width = binaryImage[0].length;
         int[][] erodedImage = new int[height][width];
 
-        for (int y = step; y < height - step; y++) {
-            for (int x = step; x < width - step; x++) {
-                boolean erodePixel = true;
-                for (int dy = -step; dy <= step; dy++) {
-                    for (int dx = -step; dx <= step; dx++) {
-                        if (binaryImage[y + dy][x + dx] == 0) {
-                            erodePixel = false;
-                            break;
+        //todo распараллелить (протестить с экзекутором и без)
+        try (ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())) {
+            executor.submit(() -> {
+                for (int y = step; y < height - step; y++) {
+                    for (int x = step; x < width - step; x++) {
+                        boolean erodePixel = true;
+                        for (int dy = -step; dy <= step; dy++) {
+                            for (int dx = -step; dx <= step; dx++) {
+                                if (binaryImage[y + dy][x + dx] == 0) {
+                                    erodePixel = false;
+                                    break;
+                                }
+                            }
+                            if (!erodePixel) break;
                         }
+                        erodedImage[y][x] = erodePixel ? 1 : 0;
                     }
-                    if (!erodePixel) break;
                 }
-                erodedImage[y][x] = erodePixel ? 1 : 0;
-            }
+            });
+            executor.shutdown();
         }
 
         return erodedImage;
@@ -92,5 +112,4 @@ public class Main {
 
         return statistics.getAverage();
     }
-
 }

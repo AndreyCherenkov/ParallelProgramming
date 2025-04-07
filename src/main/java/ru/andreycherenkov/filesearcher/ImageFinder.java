@@ -17,10 +17,6 @@ public class ImageFinder implements FileFinder {
             JPG_EXTENSION
     );
 
-    public static void main(String[] args) {
-    }
-
-
     @Override
     public Collection<Path> findFiles() {
         List<Path> foundFiles = new ArrayList<>();

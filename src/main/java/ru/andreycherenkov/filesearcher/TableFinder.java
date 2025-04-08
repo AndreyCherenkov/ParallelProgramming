@@ -26,7 +26,7 @@ public class TableFinder implements FileFinder {
             pathStream
                     .filter(Files::isRegularFile)
                     .filter(path -> !path.toString().contains(startPath + File.separator + "target"))
-                    .filter(path -> !path.toString().contains("resources" + File.separator + "results"))
+                    .filter(path -> !path.toString().contains("resources" + File.separator + "lab"))
                     .filter(path -> IMAGE_EXTENSIONS.stream().anyMatch(ext -> path.toString().endsWith(ext)))
                     .forEach(foundFiles::add);
         } catch (IOException e) {

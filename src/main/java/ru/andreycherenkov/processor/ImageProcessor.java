@@ -1,4 +1,7 @@
-package ru.andreycherenkov;
+package ru.andreycherenkov.processor;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -6,10 +9,12 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.time.LocalDateTime;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
+import static java.util.concurrent.Executors.newFixedThreadPool;
+
+@RequiredArgsConstructor
+@Component
 public class ImageProcessor {
 
     public void writeFile(BufferedImage image, Path imagePath, String resultsPath) {
@@ -61,7 +66,7 @@ public class ImageProcessor {
         int width = binaryImage[0].length;
         int[][] erodedImage = new int[height][width];
 
-        try (ExecutorService executor = Executors.newFixedThreadPool(threadCount)) {
+        try (ExecutorService executor = newFixedThreadPool(threadCount)) {
             for (int y = step; y < height - step; y++) {
                 final int row = y;
                 executor.submit(() -> {
@@ -88,8 +93,7 @@ public class ImageProcessor {
         int[][] binaryImage = getBinaryImage(image);
         int height = binaryImage.length;
         int width = binaryImage[0].length;
-
-        try (ExecutorService executor = Executors.newFixedThreadPool(threadCount)) {
+        try (ExecutorService executor = newFixedThreadPool(threadCount)) {
             for (int y = 0; y < height; y++) {
                 final int row = y;
                 executor.submit(() -> {
@@ -105,7 +109,6 @@ public class ImageProcessor {
     }
 
     //Лабораторная работа 2, программа В
-    //todo Распараллелить
     public BufferedImage shiftImage(BufferedImage image,
                                     int shiftX,
                                     int shiftY,
@@ -119,7 +122,7 @@ public class ImageProcessor {
         g.fillRect(0, 0, width, height);
         g.dispose();
 
-        try (ExecutorService executor = Executors.newFixedThreadPool(threadCount)){
+        try (ExecutorService executor = newFixedThreadPool(threadCount)) {
             for (int x = 0; x < width; x++) {
                 final int finalX = x;
                 executor.submit(() -> {
@@ -144,7 +147,7 @@ public class ImageProcessor {
         };
 
         BufferedImage blurredImage = new BufferedImage(image.getWidth(), image.getHeight(), image.getType());
-        try (ExecutorService executor = Executors.newFixedThreadPool(threadCount)){
+        try (ExecutorService executor = newFixedThreadPool(threadCount)) {
             for (int x = 1; x < image.getWidth() - 1; x++) {
                 final int finalX = x;
                 executor.submit(() -> {
@@ -163,16 +166,8 @@ public class ImageProcessor {
                     }
                 });
             }
+            executor.shutdown();
         }
         return blurredImage;
-    }
-
-    //todo Перенести логику в Main
-    public void processImage(Path filePath, int shiftX, int shiftY) {
-        BufferedImage image = getBufferedImage(filePath);
-        BufferedImage shiftedImage = shiftImage(image, shiftX, shiftY);
-        BufferedImage blurredImage = applyBlurFilter(shiftedImage);
-        writeFile(blurredImage, filePath, Paths.RESULTS_PATH_LAB_2);
-        System.out.println("Processed " + filePath);
     }
 }

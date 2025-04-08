@@ -1,4 +1,4 @@
-package ru.andreycherenkov;
+package ru.andreycherenkov.filesearcher;
 
 import java.io.File;
 

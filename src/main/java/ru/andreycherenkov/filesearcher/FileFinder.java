@@ -5,6 +5,9 @@ import java.util.Collection;
 
 public interface FileFinder {
 
+    String PNG_EXTENSION = ".png";
+    String JPG_EXTENSION = ".jpg";
+
     static String extractFileExtension() {
         return ""; //todo напмисать реализацию
     }

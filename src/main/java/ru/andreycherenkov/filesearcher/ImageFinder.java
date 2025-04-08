@@ -10,9 +10,7 @@ import java.util.stream.Stream;
 
 public class ImageFinder implements FileFinder {
 
-    private static final String PNG_EXTENSION = ".png";
-    private static final String JPG_EXTENSION = ".jpg";
-    public static final List<String> IMAGE_EXTENSIONS = List.of(
+    private static final List<String> IMAGE_EXTENSIONS = List.of(
             PNG_EXTENSION,
             JPG_EXTENSION
     );
@@ -25,7 +23,8 @@ public class ImageFinder implements FileFinder {
             pathStream
                     .filter(Files::isRegularFile)
                     .filter(path -> !path.toString().contains(startPath + File.separator + "target"))
-                    .filter(path -> !path.toString().contains("resources" + File.separator + "results"))
+                    .filter(path -> !path.toString().contains("resources" + File.separator + "lab"))
+                    .filter(path -> path.toString().contains("resources"))
                     .filter(path -> IMAGE_EXTENSIONS.stream().anyMatch(ext -> path.toString().endsWith(ext)))
                     .forEach(foundFiles::add);
         } catch (IOException e) {

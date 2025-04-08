@@ -29,7 +29,7 @@ public class LabRunner {
     @PostConstruct
     public void init() {
         Collection<Path> paths = imageFinder.findFiles();
-        List<Integer> threadCount = List.of(2, 4, 6, 8, 10, 12, 14, 16);
+        List<Integer> threadCount = List.of(1, 2, 4, 6, 8, 10, 12, 14, 16);
         executeLab1(paths, threadCount);
         executeLab2(paths, threadCount);
     }

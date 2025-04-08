@@ -1,7 +1,5 @@
 package ru.andreycherenkov.processor;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -13,8 +11,6 @@ import java.util.concurrent.ExecutorService;
 
 import static java.util.concurrent.Executors.newFixedThreadPool;
 
-@RequiredArgsConstructor
-@Component
 public class ImageProcessor {
 
     public void writeFile(BufferedImage image, Path imagePath, String resultsPath) {

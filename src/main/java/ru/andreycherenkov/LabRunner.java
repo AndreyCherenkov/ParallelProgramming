@@ -1,10 +1,5 @@
 package ru.andreycherenkov;
 
-import jakarta.annotation.PostConstruct;
-import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import ru.andreycherenkov.filesearcher.FileFinder;
 import ru.andreycherenkov.filesearcher.Paths;
 import ru.andreycherenkov.processor.ImageProcessor;
@@ -14,20 +9,17 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 
-@Service
 public class LabRunner {
 
     private final FileFinder imageFinder;
     private final ImageProcessor imageProcessor;
 
-    @Autowired
     public LabRunner(FileFinder imageFinder, ImageProcessor imageProcessor) {
         this.imageFinder = imageFinder;
         this.imageProcessor = imageProcessor;
     }
 
-    @PostConstruct
-    public void init() {
+    public void execute() {
         Collection<Path> paths = imageFinder.findFiles();
         List<Integer> threadCount = List.of(1, 2, 4, 6, 8, 10, 12, 14, 16);
         executeLab1(paths, threadCount);

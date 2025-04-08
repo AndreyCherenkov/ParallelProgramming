@@ -1,8 +1,5 @@
 package ru.andreycherenkov.filesearcher;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
@@ -12,7 +9,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
 
-@Component
 public class ImageFinder implements FileFinder {
 
     private static final List<String> IMAGE_EXTENSIONS = List.of(

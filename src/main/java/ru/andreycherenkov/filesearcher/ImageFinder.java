@@ -9,6 +9,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static ru.andreycherenkov.filesearcher.ProjectPaths.START_PATH;
+
 public class ImageFinder implements FileFinder {
 
     private static final List<String> IMAGE_EXTENSIONS = List.of(
@@ -18,8 +20,8 @@ public class ImageFinder implements FileFinder {
 
     @Override
     public Collection<Path> findFiles() {
-        List<Path> foundFiles = new ArrayList<>();
-        Path startPath = Paths.get("." + File.separator);
+        var foundFiles = new ArrayList<Path>();
+        var startPath = Paths.get(START_PATH);
         try (Stream<Path> pathStream = Files.walk(startPath)) {
             pathStream
                     .filter(Files::isRegularFile)

@@ -7,6 +7,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 
 import static java.util.concurrent.Executors.newFixedThreadPool;
@@ -35,22 +36,22 @@ public class ImageProcessor {
     }
 
     public int[][] getBinaryImage(BufferedImage image) {
-        int width = image.getWidth();
-        int height = image.getHeight();
+        var width = image.getWidth();
+        var height = image.getHeight();
         return new int[height][width];
     }
 
     //Лабораторная работа 1, 2.., программа А
     public BufferedImage changeImageIntensive(int[][] erodedImage) {
-        int height = erodedImage.length;
-        int width = erodedImage[0].length;
+        var height = erodedImage.length;
+        var width = erodedImage[0].length;
         var outputImage = new BufferedImage(
                 width,
                 height,
                 BufferedImage.TYPE_INT_RGB
         );
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
+        for (var y = 0; y < height; y++) {
+            for (var x = 0; x < width; x++) {
                 outputImage.setRGB(x, y, erodedImage[y][x] == 1 ? Color.WHITE.getRGB() : Color.BLACK.getRGB());
             }
         }
@@ -58,18 +59,18 @@ public class ImageProcessor {
     }
 
     public int[][] erode(int[][] binaryImage, int step, int threadCount) {
-        int height = binaryImage.length;
-        int width = binaryImage[0].length;
+        var height = binaryImage.length;
+        var width = binaryImage[0].length;
         int[][] erodedImage = new int[height][width];
 
-        try (ExecutorService executor = newFixedThreadPool(threadCount)) {
-            for (int y = step; y < height - step; y++) {
-                final int row = y;
+        try (var executor = newFixedThreadPool(threadCount)) {
+            for (var y = step; y < height - step; y++) {
+                final var row = y;
                 executor.submit(() -> {
-                    for (int x = step; x < width - step; x++) {
-                        boolean erodePixel = true;
-                        for (int dy = -step; dy <= step; dy++) {
-                            for (int dx = -step; dx <= step; dx++) {
+                    for (var x = step; x < width - step; x++) {
+                        var erodePixel = true;
+                        for (var dy = -step; dy <= step; dy++) {
+                            for (var dx = -step; dx <= step; dx++) {
                                 if (binaryImage[row + dy][x + dx] == 0) {
                                     erodePixel = false;
                                     break;
@@ -87,15 +88,15 @@ public class ImageProcessor {
 
     public int[][] processImageUsingThreshold(BufferedImage image, int threshold, int threadCount) {
         int[][] binaryImage = getBinaryImage(image);
-        int height = binaryImage.length;
-        int width = binaryImage[0].length;
-        try (ExecutorService executor = newFixedThreadPool(threadCount)) {
-            for (int y = 0; y < height; y++) {
-                final int row = y;
+        var height = binaryImage.length;
+        var width = binaryImage[0].length;
+        try (var executor = newFixedThreadPool(threadCount)) {
+            for (var y = 0; y < height; y++) {
+                final var row = y;
                 executor.submit(() -> {
-                    for (int x = 0; x < width; x++) {
-                        Color color = new Color(image.getRGB(x, row));
-                        int intensity = (color.getRed() + color.getGreen() + color.getBlue()) / 3;
+                    for (var x = 0; x < width; x++) {
+                        var color = new Color(image.getRGB(x, row));
+                        var intensity = (color.getRed() + color.getGreen() + color.getBlue()) / 3;
                         binaryImage[row][x] = intensity < threshold ? 0 : 1;
                     }
                 });
@@ -109,22 +110,22 @@ public class ImageProcessor {
                                     int shiftX,
                                     int shiftY,
                                     int threadCount) {
-        int width = image.getWidth();
-        int height = image.getHeight();
-        BufferedImage newImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        var width = image.getWidth();
+        var height = image.getHeight();
+        var newImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 
-        Graphics g = newImage.getGraphics();
+        var g = newImage.getGraphics();
         g.setColor(new Color(187, 38, 73));
         g.fillRect(0, 0, width, height);
         g.dispose();
 
-        try (ExecutorService executor = newFixedThreadPool(threadCount)) {
-            for (int x = 0; x < width; x++) {
-                final int finalX = x;
+        try (var executor = newFixedThreadPool(threadCount)) {
+            for (var x = 0; x < width; x++) {
+                final var finalX = x;
                 executor.submit(() -> {
-                    for (int y = 0; y < height; y++) {
-                        int newX = finalX + shiftX;
-                        int newY = y + shiftY;
+                    for (var y = 0; y < height; y++) {
+                        var newX = finalX + shiftX;
+                        var newY = y + shiftY;
                         if (newX >= 0 && newX < width && newY >= 0 && newY < height) {
                             newImage.setRGB(newX, newY, image.getRGB(finalX, y));
                         }
@@ -142,17 +143,17 @@ public class ImageProcessor {
                 1f / 9f, 1f / 9f, 1f / 9f
         };
 
-        BufferedImage blurredImage = new BufferedImage(image.getWidth(), image.getHeight(), image.getType());
-        try (ExecutorService executor = newFixedThreadPool(threadCount)) {
-            for (int x = 1; x < image.getWidth() - 1; x++) {
-                final int finalX = x;
+        var blurredImage = new BufferedImage(image.getWidth(), image.getHeight(), image.getType());
+        try (var executor = newFixedThreadPool(threadCount)) {
+            for (var x = 1; x < image.getWidth() - 1; x++) {
+                final var finalX = x;
                 executor.submit(() -> {
-                    for (int y = 1; y < image.getHeight() - 1; y++) {
+                    for (var y = 1; y < image.getHeight() - 1; y++) {
                         float r = 0, g = 0, b = 0;
-                        for (int kx = -1; kx <= 1; kx++) {
-                            for (int ky = -1; ky <= 1; ky++) {
-                                int rgb = image.getRGB(finalX + kx, y + ky);
-                                Color color = new Color(rgb);
+                        for (var kx = -1; kx <= 1; kx++) {
+                            for (var ky = -1; ky <= 1; ky++) {
+                                var rgb = image.getRGB(finalX + kx, y + ky);
+                                var color = new Color(rgb);
                                 r += color.getRed() * blurKernelCore[(kx + 1) * 3 + (ky + 1)];
                                 g += color.getGreen() * blurKernelCore[(kx + 1) * 3 + (ky + 1)];
                                 b += color.getBlue() * blurKernelCore[(kx + 1) * 3 + (ky + 1)];
@@ -162,7 +163,6 @@ public class ImageProcessor {
                     }
                 });
             }
-            executor.shutdown();
         }
         return blurredImage;
     }

@@ -11,11 +11,11 @@ import java.util.Random;
 public class KMeansClustering {
     private List<Point> dataPoints;
     private List<Cluster> clusters;
-    private int k;
+    private int numClusters;
 
-    public KMeansClustering(List<Point> dataPoints, int k) {
+    public KMeansClustering(List<Point> dataPoints, int numClusters) {
         this.dataPoints = dataPoints;
-        this.k = k;
+        this.numClusters = numClusters;
         this.clusters = new ArrayList<>();
     }
 
@@ -60,10 +60,9 @@ public class KMeansClustering {
         return scaledData;
     }
 
-
     public void initializeClusters() {
         Random random = new Random();
-        for (int i = 0; i < k; i++) {
+        for (int i = 0; i < numClusters; i++) {
             int randomIndex = random.nextInt(dataPoints.size());
             clusters.add(new Cluster(dataPoints.get(randomIndex)));
         }

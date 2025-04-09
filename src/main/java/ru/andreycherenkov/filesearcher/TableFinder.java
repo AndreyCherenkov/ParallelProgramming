@@ -17,12 +17,11 @@ public class TableFinder implements FileFinder {
             CSV_EXTENSION
     );
 
-
     @Override
     public Collection<Path> findFiles() {
-        List<Path> foundFiles = new ArrayList<>();
-        Path startPath = Paths.get("." + File.separator);
-        try (Stream<Path> pathStream = Files.walk(startPath)) {
+        var foundFiles = new ArrayList<Path>();
+        var startPath = Paths.get("." + File.separator);
+        try (var pathStream = Files.walk(startPath)) {
             pathStream
                     .filter(Files::isRegularFile)
                     .filter(path -> !path.toString().contains(startPath + File.separator + "target"))

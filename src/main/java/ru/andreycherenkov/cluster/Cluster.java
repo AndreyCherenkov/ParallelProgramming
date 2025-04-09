@@ -23,9 +23,9 @@ public class Cluster {
     void updateCentroid() {
         if (points.isEmpty()) return;
 
-        double sumX = 0;
-        double sumY = 0;
-        for (Point point : points) {
+        var sumX = 0D;
+        var sumY = 0D;
+        for (var point : points) {
             sumX += point.x;
             sumY += point.y;
         }

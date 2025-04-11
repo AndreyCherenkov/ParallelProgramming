@@ -7,8 +7,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
 
 import static java.util.concurrent.Executors.newFixedThreadPool;
 
@@ -24,14 +22,12 @@ public class ImageProcessor {
 
         try {
             var fileExtension = pStr.substring(pStr.lastIndexOf(".") + 1);
-            File outputFile = new File(resultsPath + fileName + "_threads_" + threadCount + "." + fileExtension);
+            var outputFile = new File(resultsPath + fileName + "_threads_" + threadCount + "." + fileExtension);
             ImageIO.write(image, fileExtension, outputFile);
         } catch (IOException e) {
             throw new RuntimeException("Ошибка при записи файла: " + e.getMessage(), e);
         }
     }
-
-
 
     public BufferedImage getBufferedImage(Path imagePath) {
         try {

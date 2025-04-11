@@ -6,8 +6,7 @@ import ru.andreycherenkov.processor.ImageProcessor;
 
 import java.awt.image.BufferedImage;
 import java.nio.file.Path;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 public class LabRunner {
 
@@ -28,12 +27,13 @@ public class LabRunner {
 
     public void executeLab1(Collection<Path> paths, Collection<Integer> threadCounts) {
         System.out.println("Lab1 starts");
-        for (var thread: threadCounts) {
+        Map<String, List<Long>> results = new HashMap<>();
 
+        for (var thread : threadCounts) {
             for (var imagePath : paths) {
                 long before = System.currentTimeMillis();
 
-                int threshold = 125;
+                int threshold = 100;
                 int erosionStep = 1;
                 BufferedImage image = imageProcessor.getBufferedImage(imagePath);
                 int[][] binaryImage = imageProcessor.processImageUsingThreshold(image, threshold, thread);
@@ -43,11 +43,17 @@ public class LabRunner {
 
                 long after = System.currentTimeMillis();
                 long time = after - before;
-                System.out.println(imagePath);
-                System.out.printf("Milliseconds: %d with thread count %d: \n", time, thread);
+
+                String imagePathStr = imagePath.toString();
+                results.putIfAbsent(imagePathStr, new ArrayList<>());
+                results.get(imagePathStr).add(time);
             }
         }
+
+        results
+                .forEach((key, value) -> System.out.println(key + ": " + value));
     }
+
 
     public void executeLab2(Collection<Path> paths, Collection<Integer> threadCounts) {
         System.out.println("Lab2 starts");

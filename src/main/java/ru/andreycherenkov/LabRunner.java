@@ -26,38 +26,46 @@ public class LabRunner {
         executeLab2(paths, threadCount);
     }
 
-    private void executeLab1(Collection<Path> paths, Collection<Integer> threadCounts) {
+    public void executeLab1(Collection<Path> paths, Collection<Integer> threadCounts) {
         System.out.println("Lab1 starts");
         for (var thread: threadCounts) {
-            long before = System.currentTimeMillis();
+
             for (var imagePath : paths) {
-                int threshold = 150;
+                long before = System.currentTimeMillis();
+
+                int threshold = 125;
                 int erosionStep = 1;
                 BufferedImage image = imageProcessor.getBufferedImage(imagePath);
                 int[][] binaryImage = imageProcessor.processImageUsingThreshold(image, threshold, thread);
                 var erodedImage = imageProcessor.erode(binaryImage, erosionStep, thread);
                 var result = imageProcessor.changeImageIntensive(erodedImage);
-                imageProcessor.writeFile(result, imagePath, ProjectPaths.RESULTS_PATH_LAB_1);
+                imageProcessor.writeFile(result, imagePath, ProjectPaths.RESULTS_PATH_LAB_1, thread);
+
+                long after = System.currentTimeMillis();
+                long time = after - before;
+                System.out.println(imagePath);
+                System.out.printf("Milliseconds: %d with thread count %d: \n", time, thread);
             }
-            long after = System.currentTimeMillis();
-            long time = after - before;
-            System.out.printf("Milliseconds: %d with thread count %d: \n", time, thread);
         }
     }
 
-    private void executeLab2(Collection<Path> paths, Collection<Integer> threadCounts) {
+    public void executeLab2(Collection<Path> paths, Collection<Integer> threadCounts) {
         System.out.println("Lab2 starts");
         for (var thread : threadCounts) {
-            long before = System.currentTimeMillis();
             for (var imagePath : paths) {
+
+                long before = System.currentTimeMillis();
                 var image = imageProcessor.getBufferedImage(imagePath);
-                var shiftedImage = imageProcessor.shiftImage(image, 10, 10, thread); //10, 10 -  смещения по осям x и y
+                var shiftedImage = imageProcessor.shiftImage(image, 10, 10, thread);
                 var blurredImage = imageProcessor.applyBlurFilter(shiftedImage, thread);
-                imageProcessor.writeFile(blurredImage, imagePath, ProjectPaths.RESULTS_PATH_LAB_2);
+                imageProcessor.writeFile(blurredImage, imagePath, ProjectPaths.RESULTS_PATH_LAB_2, thread);
+
+                long after = System.currentTimeMillis();
+                long time = after - before;
+                System.out.println(imagePath);
+                System.out.printf("Milliseconds: %d with thread count %d: \n", time, thread);
+                System.out.println("/////////////////////////////////////////////");
             }
-            long after = System.currentTimeMillis();
-            long time = after - before;
-            System.out.printf("Milliseconds: %d with thread count %d: \n", time, thread);
         }
     }
 }

@@ -14,18 +14,24 @@ import static java.util.concurrent.Executors.newFixedThreadPool;
 
 public class ImageProcessor {
 
-    public void writeFile(BufferedImage image, Path imagePath, String resultsPath) {
+    public void writeFile(BufferedImage image, Path imagePath, String resultsPath, int threadCount) {
         var pStr = imagePath.toString();
-        var fileName = pStr.substring(pStr.lastIndexOf(File.separator) + 1);
+        var fileName = pStr.substring(pStr.lastIndexOf(File.separator) + 1, pStr.lastIndexOf("."));
+
+        if (!resultsPath.endsWith(File.separator)) {
+            resultsPath += File.separator;
+        }
+
         try {
             var fileExtension = pStr.substring(pStr.lastIndexOf(".") + 1);
-            ImageIO.write(image,
-                    fileExtension,
-                    new File(resultsPath + fileName));
+            File outputFile = new File(resultsPath + fileName + "_threads_" + threadCount + "." + fileExtension);
+            ImageIO.write(image, fileExtension, outputFile);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Ошибка при записи файла: " + e.getMessage(), e);
         }
     }
+
+
 
     public BufferedImage getBufferedImage(Path imagePath) {
         try {

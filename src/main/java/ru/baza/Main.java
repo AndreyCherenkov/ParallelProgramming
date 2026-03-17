@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.*;
 
+//todo фабрики для consumer-producer, прилоежения
 public class Main {
 
     static {
@@ -15,39 +16,43 @@ public class Main {
     private static final String PATH_60_SEC = "videos/60sec.mp4";
 
     public static void main(String[] args) throws Exception {
-        var consumerNum = 8;
-        var consumerPool = Executors.newFixedThreadPool(consumerNum);
+        for (var consumerNum = 1; consumerNum <= 16; consumerNum*=2) {
+            var consumerPool = Executors.newFixedThreadPool(consumerNum);
 
-        var queue = new ArrayBlockingQueue<Frame>(100);
+            var queue = new ArrayBlockingQueue<Frame>(100);
 
-        var producer = new FrameProducer(queue);
-        var consumer = new FrameConsumer(queue, consumerPool, new FrameProcessor());
+            var producer = new FrameProducer(queue);
+            var consumer = new FrameConsumer(queue, consumerPool, new FrameProcessor());
 
-        var start = System.nanoTime();
-        producer.produce(PATH_30_SEC);
+            var start = System.nanoTime();
+            producer.produce(PATH_15_SEC);
 
-        var futures = new ArrayList<Future<?>>();
-        for (var i = 0; i < consumerNum; i++) {
-            futures.add(consumer.consume(64));
+            var futures = new ArrayList<Future<?>>();
+            for (var i = 0; i < consumerNum; i++) {
+                futures.add(consumer.consume(DefaultConfig.DEFAULT_THRESHOLD));
+            }
+            // ⬇ ЖДЁМ завершения consumer
+
+
+            for (Future<?> f : futures) {
+                f.get();
+            }
+            // ⬇ shutdown пулов
+            producer.shutdown();
+            consumerPool.shutdown();
+
+            // ⬇сохраняем видео
+            var frames = new ArrayList<>(consumer.getProcessedFrames());
+
+            var saver = new VideoSaver();
+            saver.saveVideo(frames, "new_output.mp4", true);
+            var end = System.nanoTime();
+            var total = (end - start) / Math.pow(10, 9);
+            System.out.println("===================================");
+            System.out.println("Num threads (consumers): " + consumerNum);
+            System.out.println("Total time: " + total);
+            System.out.println("===================================");
         }
-        // ⬇️ ЖДЁМ завершения consumer
-
-
-        for (Future<?> f : futures) {
-            f.get();
-        }
-        // ⬇️ shutdown пулов
-        producer.shutdown();
-        consumerPool.shutdown();
-
-        // ⬇️ сохраняем видео
-        var frames = new ArrayList<>(consumer.getProcessedFrames());
-
-        var saver = new VideoSaver();
-        saver.saveVideo(frames, 30, "new_output.mp4", true);
-        var end = System.nanoTime();
-        var total = (end - start) / Math.pow(10, 9);
-        System.out.println("Total time: " + total);
     }
 
 //    private static void runTests(String inputVideoPath, String outputFileName) {

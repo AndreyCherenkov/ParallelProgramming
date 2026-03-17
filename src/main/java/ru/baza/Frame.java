@@ -3,25 +3,19 @@ package ru.baza;
 import org.opencv.core.Mat;
 
 import static java.lang.Integer.compare;
+import static ru.baza.DefaultConfig.RGB_FORMAT;
 
 public final class Frame implements Comparable<Frame> {
 
     public static final Frame POISON_PILL = new Frame(-1, null);
 
     private final Mat matrix;
-    private final ThreadLocal<double[]> buffer = ThreadLocal.withInitial(() -> new double[3]); //todo убрать магическое число
+    private final ThreadLocal<double[]> buffer = ThreadLocal.withInitial(() -> new double[RGB_FORMAT]);
     private final int index;
 
     public Frame(int index, Mat matrix) {
         this.index = index;
         this.matrix = matrix;
-    }
-
-    @Override
-    public String toString() {
-        return "Frame{" +
-                "matrix=" + matrix +
-                '}';
     }
 
     public Mat getMatrix() {

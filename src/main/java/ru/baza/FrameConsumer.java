@@ -43,5 +43,4 @@ public class FrameConsumer {
     public ConcurrentSkipListSet<Frame> getProcessedFrames() {
         return processedFrames;
     }
-
 }

@@ -4,14 +4,26 @@ import org.opencv.core.Size;
 import org.opencv.videoio.VideoWriter;
 
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 //todo сделать потоковое сохранение
 public class VideoSaver {
+    private final int fps;
 
+    private static final int FPS_30 = 30;
 
-    //todo try/catch refactor
-    public void saveVideo(List<Frame> frames, int fps, String filePath, boolean isColorVideo) {
+    private final ConcurrentHashMap<Integer, Frame> frameMap = new ConcurrentHashMap<>();
+
+    public VideoSaver(int fps) {
+        this.fps = fps;
+    }
+
+    public VideoSaver() {
+        this(FPS_30);
+    }
+
+    public void saveVideo(List<Frame> frames, String filePath, boolean isColorVideo) {
         var frame = frames.getFirst();
         var width = frame.getWidth();
         var height = frame.getHeight();

@@ -1,12 +1,11 @@
 package ru.baza;
 
+import static ru.baza.DefaultConfig.RED_COLOR_INDEX;
+import static ru.baza.DefaultConfig.GREEN_COLOR_INDEX;
+import static ru.baza.DefaultConfig.BLUE_COLOR_INDEX;
+import static ru.baza.DefaultConfig.RED_PIXEL;
+
 public class FrameProcessor {
-
-    private static final int RED_COLOR_INDEX = 2;
-    private static final int GREEN_COLOR_INDEX = 1;
-    private static final int BLUE_COLOR_INDEX = 0;
-    private static final double[] RED_PIXEL = new double[]{0, 0, 255}; // In OpenCV BGR color format
-
 
     public void process(Frame frame, int threshold) {
         var matrix = getIntensityMatrix(frame);
@@ -15,12 +14,12 @@ public class FrameProcessor {
     }
 
     public int[][] getIntensityMatrix(Frame frame) {
-        int height = frame.getHeight();
-        int width = frame.getWidth();
-        int[][] matrix = new int[height][width];
+        var height = frame.getHeight();
+        var width = frame.getWidth();
+        var matrix = new int[height][width];
 
-        for (int row = 0; row < height; row++) {
-            for (int col = 0; col < width; col++) {
+        for (var row = 0; row < height; row++) {
+            for (var col = 0; col < width; col++) {
                 var pixel = frame.getBufferedPixel(row, col);
                 var r = pixel[RED_COLOR_INDEX];
                 var g = pixel[GREEN_COLOR_INDEX];
@@ -31,8 +30,6 @@ public class FrameProcessor {
         return matrix;
     }
 
-
-    //default threshold = 64 (по заданию)
     public boolean[][] getLowIntensityPixelMask(int[][] intensityMatrix, int threshold) {
 
         var rows = intensityMatrix.length;

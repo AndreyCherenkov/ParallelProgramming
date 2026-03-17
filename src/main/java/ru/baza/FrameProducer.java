@@ -6,7 +6,6 @@ import org.opencv.videoio.VideoCapture;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-//todo можно подавать кадры в виде конвейера
 public class FrameProducer {
 
     public static final Integer CONSUMERS_NUMBER = 8;
@@ -25,7 +24,7 @@ public class FrameProducer {
         var index = new AtomicInteger();
 
         var frame = new Mat();
-        executorService.submit(() -> { //todo сделать несколько?
+        executorService.submit(() -> {
             try {
                 while (!Thread.currentThread().isInterrupted() && capture.read(frame)) {
                     queue.put(new Frame(index.getAndIncrement(), frame.clone()));

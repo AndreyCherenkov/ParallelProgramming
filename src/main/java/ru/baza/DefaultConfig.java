@@ -1,5 +1,7 @@
 package ru.baza;
 
+//todo delete
+@Deprecated
 public interface DefaultConfig {
 
     int RGB_FORMAT = 3;

@@ -8,14 +8,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class FrameProducer {
 
-    public static final Integer CONSUMERS_NUMBER = 8;
-
-    private final BlockingQueue<Frame> queue;
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-    public FrameProducer(BlockingQueue<Frame> queue) {
+    private final BlockingQueue<Frame> queue;
+    public final int consumerNumber;
+
+    public FrameProducer(BlockingQueue<Frame> queue, int consumerNumber) {
         this.queue = queue;
+        this.consumerNumber = consumerNumber;
     }
 
     public void produce(String filePath) {
@@ -35,7 +36,7 @@ public class FrameProducer {
                 capture.release();
             }
 
-            for (var i = 0; i < CONSUMERS_NUMBER; i++) {
+            for (var i = 0; i < consumerNumber; i++) {
                 try {
                     queue.put(Frame.POISON_PILL);
                 } catch (InterruptedException e) {
@@ -46,8 +47,11 @@ public class FrameProducer {
         });
     }
 
-    public void shutdown() {
+    public void shutdown() throws InterruptedException {
         executorService.shutdown();
+        if (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
+            executorService.shutdownNow();
+        }
     }
 
     private static void isOpened(VideoCapture capture, String filePath) {

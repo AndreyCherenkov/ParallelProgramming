@@ -1,15 +1,19 @@
 package ru.baza;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.concurrent.*;
+
+import static ru.baza.Frame.POISON_PILL;
 
 public class FrameConsumer {
 
     private final BlockingQueue<Frame> queue;
     private final ExecutorService executorService;
     private final FrameProcessor frameProcessor;
+
+    //todo протестировать с обоими вариантами/уйти от хранения кадров в памяти; убрать у потребителя обязанность по хранению обработанных кадров
+//    private final ConcurrentLinkedQueue<Frame> processedFrames = new ConcurrentLinkedQueue<>();
     private final ConcurrentSkipListSet<Frame> processedFrames = new ConcurrentSkipListSet<>();
 
     public FrameConsumer(
@@ -22,15 +26,15 @@ public class FrameConsumer {
         this.frameProcessor = frameProcessor;
     }
 
-    public Future<?> consume(int threshold) {
+    public Future<?> consume() {
         return executorService.submit(() -> {
-            while (true) {
+            while (!Thread.currentThread().isInterrupted()) {
                 try {
                     var frame = queue.take();
-                    if (frame.equals(Frame.POISON_PILL)) {
+                    if (POISON_PILL == frame) {
                         break;
                     }
-                    frameProcessor.process(frame, threshold);
+                    frameProcessor.process(frame);
                     processedFrames.add(frame);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
@@ -40,7 +44,7 @@ public class FrameConsumer {
         });
     }
 
-    public ConcurrentSkipListSet<Frame> getProcessedFrames() {
-        return processedFrames;
+    public Collection<Frame> getProcessedFrames() {
+        return Collections.unmodifiableCollection(processedFrames);
     }
 }

@@ -1,102 +1,63 @@
 package ru.baza;
 
 import java.util.ArrayList;
-import java.util.Map;
+import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.*;
 
-//todo фабрики для consumer-producer, прилоежения
+//todo фабрики для consumer-producer, сборки программы
 public class Main {
 
     static {
         nu.pattern.OpenCV.loadLocally();
     }
 
-    private static final String PATH_15_SEC = "videos/15sec.mp4";
-    private static final String PATH_30_SEC = "videos/30sec.mp4";
-    private static final String PATH_60_SEC = "videos/60sec.mp4";
+    private static final Collection<String> files = List.of(
+            "videos/15sec.mp4",
+            "videos/30sec.mp4",
+            "videos/60sec.mp4"
+    );
 
     public static void main(String[] args) throws Exception {
-        for (var consumerNum = 1; consumerNum <= 16; consumerNum*=2) {
-            var consumerPool = Executors.newFixedThreadPool(consumerNum);
+        for (var file: files) {
+            System.out.println("Filename: " + file);
+            for (var consumerNum = 1; consumerNum <= 8; consumerNum*=2) { //todo больше 12 потребителей лучше не делать
+                var avg = 0.0;
+                for (var i = 0; i < 3; i++) {
+                    var consumerPool = Executors.newFixedThreadPool(consumerNum);
 
-            var queue = new ArrayBlockingQueue<Frame>(100);
+                    var queue = new ArrayBlockingQueue<Frame>(100);
 
-            var producer = new FrameProducer(queue);
-            var consumer = new FrameConsumer(queue, consumerPool, new FrameProcessor());
+                    var producer = new FrameProducer(queue, consumerNum);
+                    var consumer = new FrameConsumer(queue, consumerPool, new FrameProcessor());
 
-            var start = System.nanoTime();
-            producer.produce(PATH_15_SEC);
+                    var start = System.nanoTime();
+                    producer.produce(file);
 
-            var futures = new ArrayList<Future<?>>();
-            for (var i = 0; i < consumerNum; i++) {
-                futures.add(consumer.consume(DefaultConfig.DEFAULT_THRESHOLD));
+                    var futures = new ArrayList<Future<?>>();
+                    for (var j = 0; j < consumerNum; j++) {
+                        futures.add(consumer.consume());
+                    }
+
+                    for (Future<?> f : futures) {
+                        f.get();
+                    }
+                    producer.shutdown();
+                    consumerPool.shutdown();
+
+                    var frames = new ArrayList<>(consumer.getProcessedFrames());
+
+                    var saver = new VideoSaver();
+                    saver.saveVideo(frames,  file + ".mp4", true); //todo refactor
+                    var end = System.nanoTime();
+                    var total = (end - start) / Math.pow(10, 9);
+                    avg += total;
+                }
+                System.out.println("===================================");
+                System.out.println("Num threads (consumers): " + consumerNum);
+                System.out.println("Avg time: " + (avg / 3));
+                System.out.println("===================================");
             }
-            // ⬇ ЖДЁМ завершения consumer
-
-
-            for (Future<?> f : futures) {
-                f.get();
-            }
-            // ⬇ shutdown пулов
-            producer.shutdown();
-            consumerPool.shutdown();
-
-            // ⬇сохраняем видео
-            var frames = new ArrayList<>(consumer.getProcessedFrames());
-
-            var saver = new VideoSaver();
-            saver.saveVideo(frames, "new_output.mp4", true);
-            var end = System.nanoTime();
-            var total = (end - start) / Math.pow(10, 9);
-            System.out.println("===================================");
-            System.out.println("Num threads (consumers): " + consumerNum);
-            System.out.println("Total time: " + total);
-            System.out.println("===================================");
         }
     }
-
-//    private static void runTests(String inputVideoPath, String outputFileName) {
-//        var loader = new FrameProducer();
-//        var processor = new FrameProcessor();
-//        var saver = new VideoSaver();
-//
-//        System.out.println("================================");
-//        System.out.println("Tests for " + inputVideoPath);
-//        for (var threads = 1; threads <= 16; threads *= 2) {
-//            var loadAvg = 0.0;
-//            var avg = 0.0;
-//
-//            for (var iteration = 0; iteration < 3; iteration++) {
-//                var s = System.nanoTime();
-//                var frames = loader.produce(inputVideoPath);
-//                var e = System.nanoTime();
-//                var t = (e - s)  / 1_000_000_000.0;
-//                loadAvg += t;
-//
-//                var start = System.nanoTime();
-//                try (var executor = Executors.newFixedThreadPool(threads)) {
-//
-//                    for (var frame : frames) {
-//                        executor.submit(() -> {
-//                            var matrix = processor.getIntensityMatrix(frame);
-//                            var mask = processor.getLowIntensityPixelMask(matrix, 64);
-//                            processor.drawRedBorders(frame, mask);
-//                        });
-//                    }
-//
-//                    executor.shutdown();
-//                }
-//
-//                saver.saveVideo(frames, 25, outputFileName, true);
-//
-//                var end = System.nanoTime();
-//                var total = (end - start) / 1_000_000_000.0;
-//                avg += total;
-//            }
-//
-//            System.out.println("----- Average for " + threads + " threads: " + (avg / 3) + " | " + "load time: " + (loadAvg / 3) + " -----");
-//        }
-//        System.out.println("Saved video: " + outputFileName);
-//        System.out.println("================================");
-//    }
 }

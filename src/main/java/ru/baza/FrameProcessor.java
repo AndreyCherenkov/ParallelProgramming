@@ -7,9 +7,11 @@ import static ru.baza.DefaultConfig.RED_PIXEL;
 
 public class FrameProcessor {
 
-    public void process(Frame frame, int threshold) {
+    public static final int DEFAULT_THRESHOLD = 64;
+
+    public void process(Frame frame) {
         var matrix = getIntensityMatrix(frame);
-        var mask = getLowIntensityPixelMask(matrix, threshold);
+        var mask = getLowIntensityPixelMask(matrix, DEFAULT_THRESHOLD);
         drawRedBorders(frame, mask);
     }
 

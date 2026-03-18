@@ -2,6 +2,8 @@ package ru.baza;
 
 import org.opencv.core.Mat;
 
+import java.util.Objects;
+
 import static java.lang.Integer.compare;
 import static ru.baza.DefaultConfig.RGB_FORMAT;
 
@@ -9,8 +11,9 @@ public final class Frame implements Comparable<Frame> {
 
     public static final Frame POISON_PILL = new Frame(-1, null);
 
+    private final ThreadLocal<double[]> buffer = ThreadLocal.withInitial(() -> new double[RGB_FORMAT]); //todo refactor
+
     private final Mat matrix;
-    private final ThreadLocal<double[]> buffer = ThreadLocal.withInitial(() -> new double[RGB_FORMAT]);
     private final int index;
 
     public Frame(int index, Mat matrix) {
@@ -48,6 +51,17 @@ public final class Frame implements Comparable<Frame> {
 
     public int getHeight() {
         return matrix.height();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Frame frame)) return false;
+        return index == frame.index && Objects.equals(buffer, frame.buffer) && Objects.equals(matrix, frame.matrix);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(buffer, matrix, index);
     }
 
     @Override

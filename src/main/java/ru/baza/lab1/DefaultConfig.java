@@ -1,4 +1,4 @@
-package ru.baza;
+package ru.baza.lab1;
 
 //todo delete
 @Deprecated

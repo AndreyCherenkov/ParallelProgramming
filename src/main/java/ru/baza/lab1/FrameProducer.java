@@ -1,4 +1,4 @@
-package ru.baza;
+package ru.baza.lab1;
 
 import org.opencv.core.Mat;
 import org.opencv.videoio.VideoCapture;
@@ -7,7 +7,6 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class FrameProducer {
-
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
@@ -22,7 +21,7 @@ public class FrameProducer {
     public void produce(String filePath) {
         var capture = new VideoCapture(filePath);
         isOpened(capture, filePath);
-        var index = new AtomicInteger();
+        var index = new AtomicInteger(); //todo при однопоточном режиме можно сделать non atomic -> сделать многопоточный producer?
 
         var frame = new Mat();
         executorService.submit(() -> {

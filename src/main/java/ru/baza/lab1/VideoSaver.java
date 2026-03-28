@@ -1,4 +1,4 @@
-package ru.baza;
+package ru.baza.lab1;
 
 import org.opencv.core.Size;
 import org.opencv.videoio.VideoWriter;

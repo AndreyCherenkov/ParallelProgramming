@@ -1,10 +1,10 @@
-package ru.baza;
+package ru.baza.lab1;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.*;
 
-import static ru.baza.Frame.POISON_PILL;
+import static ru.baza.lab1.Frame.POISON_PILL;
 
 public class FrameConsumer {
 

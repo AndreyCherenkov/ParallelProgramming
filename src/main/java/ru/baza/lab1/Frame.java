@@ -1,11 +1,11 @@
-package ru.baza;
+package ru.baza.lab1;
 
 import org.opencv.core.Mat;
 
 import java.util.Objects;
 
 import static java.lang.Integer.compare;
-import static ru.baza.DefaultConfig.RGB_FORMAT;
+import static ru.baza.lab1.DefaultConfig.RGB_FORMAT;
 
 public final class Frame implements Comparable<Frame> {
 

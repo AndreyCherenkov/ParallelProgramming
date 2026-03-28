@@ -1,4 +1,4 @@
-package ru.baza;
+package ru.baza.lab1;
 
 import java.util.ArrayList;
 import java.util.Collection;

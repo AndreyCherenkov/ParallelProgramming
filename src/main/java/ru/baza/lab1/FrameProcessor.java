@@ -1,9 +1,9 @@
-package ru.baza;
+package ru.baza.lab1;
 
-import static ru.baza.DefaultConfig.RED_COLOR_INDEX;
-import static ru.baza.DefaultConfig.GREEN_COLOR_INDEX;
-import static ru.baza.DefaultConfig.BLUE_COLOR_INDEX;
-import static ru.baza.DefaultConfig.RED_PIXEL;
+import static ru.baza.lab1.DefaultConfig.RED_COLOR_INDEX;
+import static ru.baza.lab1.DefaultConfig.GREEN_COLOR_INDEX;
+import static ru.baza.lab1.DefaultConfig.BLUE_COLOR_INDEX;
+import static ru.baza.lab1.DefaultConfig.RED_PIXEL;
 
 public class FrameProcessor {
 

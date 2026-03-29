@@ -12,27 +12,28 @@ import java.util.concurrent.Executors;
 
 import static ru.baza.lab3.processes.ProcessOutputHandler.POISON_PILL;
 
-//todo уйти от map -> сделать process context
+//todo запуск приложения через класс с builder?
 public class Main {
     public static void main(String[] args) throws IOException, InterruptedException {
         var start = System.nanoTime();
 
-        var processNumber = 3;
+        var processNumber = 6;
 
         var parser = new BestFilmsParser();
         var mainPage = "https://en.wikipedia.org/wiki/Academy_Award_for_Best_Picture";
-        var coordinator = new WorkerCoordinator(new ChildProcessContainer(processNumber)); //todo фабрики
+        var coordinator = new WorkerCoordinator(new ChildProcessContainer(processNumber));
         var handler = new ProcessOutputHandler(coordinator, Executors.newCachedThreadPool());
         coordinator.startProcesses(System.getProperty("java.class.path"), CastWorker.class);
         handler.registerProcess(0);
         handler.registerProcess(1);
         handler.registerProcess(2);
+        handler.registerProcess(3);
+        handler.registerProcess(4);
+        handler.registerProcess(5);
 
         parser.parse(URI.create(mainPage).toURL(), 2000, BestFilmsParser::toURL)
-                .map(url -> url + "\n")
-                .forEach(url -> {
-                    coordinator.writeData(new Random().nextInt(3), url);
-                });
+                .map(url -> url + "")
+                .forEach(url -> coordinator.writeData(new Random().nextInt(6), url));
         coordinator.closeWriters();
 
         var result = new HashMap<String, Integer>();
@@ -54,7 +55,7 @@ public class Main {
         System.out.println(result.size());
         result.entrySet().stream()
                 .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
-//                .limit(3)
+                .limit(5)
                 .forEach(entry -> System.out.println(entry.getKey() + "=" + entry.getValue()));
 
         var end = System.nanoTime();

@@ -9,8 +9,7 @@ import java.io.InputStreamReader;
 import java.net.URI;
 
 public class CastWorker {
-    private static final BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-
+    private static final BufferedReader READER = new BufferedReader(new InputStreamReader(System.in));
     private static final Parser<String> PARSER = new CastParser();
 
     public static void main(String[] args) throws IOException {
@@ -19,7 +18,7 @@ public class CastWorker {
 
     private static void processFilm() throws IOException {
         String url;
-        while ((url = reader.readLine()) != null) {
+        while ((url = READER.readLine()) != null) {
             try {
                 PARSER.parse(URI.create(url).toURL(), 5000, CastParser::elementToActorName)
                         .forEach(System.out::println);

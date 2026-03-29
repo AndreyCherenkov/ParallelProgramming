@@ -8,7 +8,7 @@ public class ProcessOutputHandler {
     public static final String POISON_PILL = "__END__";
 
     private final ConcurrentHashMap<Integer, List<Future<?>>> processFutures = new ConcurrentHashMap<>();
-    private final BlockingQueue<String> actors = new LinkedBlockingDeque<>();
+    private final BlockingQueue<String> actors = new LinkedBlockingQueue<>();
     private final WorkerCoordinator coordinator;
     private final ExecutorService executor;
 
@@ -21,7 +21,10 @@ public class ProcessOutputHandler {
     }
 
     public void registerProcess(int processNumber) {
-        //todo проверка числа процессов
+        var processesNumber = coordinator.getProcessesNumber();
+        if (processNumber >= processesNumber) {
+            throw new ArrayIndexOutOfBoundsException(String.format("Only %d processes exists", processesNumber));
+        }
 
         var futures = new ArrayList<Future<?>>();
 
@@ -40,7 +43,7 @@ public class ProcessOutputHandler {
         futures.add(executor.submit(() -> {
             String error;
             while ((error = coordinator.readError(processNumber)) != null) {
-                throw new RuntimeException(error);
+                System.out.println(error);
             }
         }));
 
@@ -51,8 +54,9 @@ public class ProcessOutputHandler {
         return actors.take();
     }
 
+    //todo выпилить и переписать под CountDownLatch
     public void awaitCompletion() {
-        processFutures.values().forEach(futures -> {
+        for (List<Future<?>> futures : processFutures.values()) {
             futures.forEach(f -> {
                 try {
                     f.get();
@@ -60,7 +64,7 @@ public class ProcessOutputHandler {
                     throw new RuntimeException(e);
                 }
             });
-        });
+        }
     }
 
     public void stop() {

@@ -55,7 +55,7 @@ public class Main {
         System.out.println(result.size());
         result.entrySet().stream()
                 .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
-                .limit(5)
+                .limit(15)
                 .forEach(entry -> System.out.println(entry.getKey() + "=" + entry.getValue()));
 
         var end = System.nanoTime();
